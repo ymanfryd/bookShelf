@@ -1,6 +1,6 @@
 import React from "react";
 import {Link} from "react-router-dom";
-import "./index.css"
+import "./style/index.css"
 import mainStore from "../../store/mainStore";
 import {observer} from "mobx-react-lite";
 
@@ -13,7 +13,7 @@ const Header = observer(() =>
             <Link to="/" className="title">BookShelf</Link>
             {mainStore.authorized ?
                 <div className="headerGroup leftAlign">
-                    <Link to="/" className="headerLink">Logout</Link>
+                    <Link to="/log_out" className="headerLink">Sign Out</Link>
                 </div>
                 :
                 <div className="headerGroup leftAlign">

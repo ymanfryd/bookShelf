@@ -1,0 +1,40 @@
+.pageTitle {
+    display: flex;
+    /*justify-content: center;*/
+    /*background: linear-gradient(180deg, #A18CD1 0%, #EC82CE 100%);*/
+    /*-webkit-background-clip: text;*/
+    /*-webkit-text-fill-color: transparent;*/
+    justify-self: flex-start;
+    height: 50px;
+}
+
+.btn {
+    background: #1A1A2F;
+    border-radius: 5px;
+    color: white;
+    padding: 10px 28px;
+    margin: 20px;
+}
+
+.pageContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    overflow-x: hidden;
+}
+
+.pagination {
+    display: flex;
+    flex-direction: row;
+    width: 80vw;
+    height: 20px;
+    justify-content: space-around;
+    justify-self: flex-end;
+    margin-top: 50px;
+}
+
+.pagination > li {
+    list-style: none;
+    cursor: pointer;
+}

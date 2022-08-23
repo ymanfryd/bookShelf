@@ -1,9 +1,9 @@
-import React from "react"
 import { makeAutoObservable } from "mobx"
 
 class mainStore {
     log = ""
     authorized = false
+    user = {}
 
     constructor() {
         makeAutoObservable(this)
@@ -15,6 +15,14 @@ class mainStore {
 
     setAuthorized(auth) {
         this.authorized = auth
+    }
+
+    setUserData(user) {
+        this.user = user
+    }
+
+    removeUserData() {
+        this.user = {}
     }
 }
 
