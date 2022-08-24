@@ -3,6 +3,7 @@ import Header from '../../components/Header'
 import {Formik, Field} from "formik";
 import mainStore from "../../store/mainStore";
 import {useNavigate} from "react-router-dom";
+import request from "../../api/request";
 
 export function validate(values, isSignUp) {
     const errors = {}
@@ -29,6 +30,7 @@ function submit({values, setSubmitting, navigate}) {
     mainStore.setUserData({name: values.name, isAdmin: values.is_admin})
     localStorage.setItem('userName', values.name)
     localStorage.setItem('isAdmin', values.is_admin)
+    request('/api/register','POST', json, false)
     navigate('/')
 }
 
@@ -49,8 +51,7 @@ export default function SignUp() {
                       handleChange,
                       handleBlur,
                       handleSubmit,
-                      isSubmitting,
-                      /* and other goodies */
+                      isSubmitting
                   }) => (
                     <form onSubmit={handleSubmit} className='form'>
                         <input
@@ -94,7 +95,7 @@ export default function SignUp() {
                         />
                         {errors.password2 && touched.password2 && errors.password2}
                         <label>
-                            <Field type="checkbox" name="is_admin" />
+                            <Field type="checkbox" name="is_admin"/>
                             Is Admin
                         </label>
                         <button type="submit" className="btn" disabled={isSubmitting}>

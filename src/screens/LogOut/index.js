@@ -3,12 +3,14 @@ import React from "react";
 import "./style/index.css"
 import {useNavigate} from "react-router-dom";
 import mainStore from "../../store/mainStore";
+import request from "../../api/request";
 
 function signOut(navigate) {
     mainStore.setAuthorized(false)
     mainStore.removeUserData()
     localStorage.removeItem('userName')
     localStorage.removeItem('isAdmin')
+    request('/api/logout', 'POST', null, true)
     navigate('/')
 }
 

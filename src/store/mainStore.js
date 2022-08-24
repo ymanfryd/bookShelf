@@ -2,6 +2,7 @@ import { makeAutoObservable } from "mobx"
 
 class mainStore {
     log = ""
+    isErrorLog = false
     authorized = false
     user = {}
 
@@ -11,6 +12,10 @@ class mainStore {
 
     setCurrentLog(log) {
         this.log = log
+    }
+
+    setErrorLog(isError) {
+        this.isErrorLog = isError
     }
 
     setAuthorized(auth) {

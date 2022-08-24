@@ -1,12 +1,10 @@
-import axios from 'axios'
-import mainStorage from "../store/mainStore";
-import booksStore from "../store/booksStore";
+import booksStore from "../store/booksStore"
+import request from "./request"
 
 export default async function getBooks() {
-    // const host = process.env.REACT_APP_HOST;
-    // const endpoint = mainStorage.user.isAdmin ? 'api/admin/books' : 'api/books'
-    // const res = await axios.get(host + endpoint)
-    // console.log(res)
+    const endpoint = 'api/books'
+
+    await request(endpoint, 'GET', null, true)
     const res = [
         {name: 'name1', author_id: 1, year: 1832},
         {name: 'name2', author_id: 1, year: 1834},

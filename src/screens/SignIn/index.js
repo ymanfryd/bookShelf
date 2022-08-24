@@ -5,11 +5,13 @@ import './style/index.css'
 import {validate} from "../SignUp";
 import {useNavigate} from "react-router-dom";
 import mainStore from "../../store/mainStore";
+import request from "../../api/request";
 
 function submit({values, setSubmitting, navigate}) {
     mainStore.setCurrentLog(JSON.stringify(values, null, 2))
     setSubmitting(false)
     mainStore.setAuthorized(true)
+    request('/api/login', 'POST', values, false)
     mainStore.setUserData({name: 'name', isAdmin: 'is_admin'}) //TODO replace userData
     localStorage.setItem('userName', "name")
     localStorage.setItem('isAdmin', "true")
@@ -32,8 +34,7 @@ export default function SignIn() {
                       handleChange,
                       handleBlur,
                       handleSubmit,
-                      isSubmitting,
-                      /* and other goodies */
+                      isSubmitting
                   }) => (
                     <form onSubmit={handleSubmit} className='form'>
                         <input

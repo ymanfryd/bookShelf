@@ -1,15 +1,13 @@
 import {Formik} from "formik";
 import React from "react";
-import booksStore from "../../../store/booksStore";
+import authorsStore from "../../../store/authorsStore";
 
-export default function EditBookForm({book, setEditBookPressed, setBooks}) {
+export default function EditAuthorsForm({author, setEditElementPressed, setAuthor}) {
     function validate(values) {
         const errors = {}
         const text = /^[0-9]+$/
         if (!values.name)
             errors.name = 'Name cannot be empty'
-        if (!values.author_id)
-            errors.author_id = 'Author cannot be empty'
         if (!values.year)
             errors.year = 'Year cannot be empty'
         else if (!text.test(values.year))
@@ -19,17 +17,17 @@ export default function EditBookForm({book, setEditBookPressed, setBooks}) {
 
     return (
         <Formik
-            initialValues={{name: book.name, author_id: book.author_id, year: book.year}}
+            initialValues={{name: author.name, year: author.year}}
             validate={validate}
             onSubmit={(values, {setSubmitting}) => {
                 values.year = parseInt(values.year)
-                values.author_id = parseInt(values.author_id)
-                setBooks(prev => {
-                    const newBooks = [values, ...prev]
-                    booksStore.setBooks(newBooks)
-                    return newBooks
+                values.id = parseInt(values.id)
+                setAuthor(prev => {
+                    const newAuthors = [values, ...prev]
+                    authorsStore.setAuthors(newAuthors)
+                    return newAuthors
                 })
-                setEditBookPressed(undefined)
+                setEditElementPressed(undefined)
                 setSubmitting(false)
             }}
         >
@@ -63,16 +61,6 @@ export default function EditBookForm({book, setEditBookPressed, setBooks}) {
                         value={values.year}
                     />
                     {errors.year && touched.year && errors.year}
-                    <input
-                        className='formInput editBookInput'
-                        type="name"
-                        name="author_id"
-                        placeholder='author'
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        value={values.author_id}
-                    />
-                    {errors.author_id && touched.author_id && errors.author_id}
                     <button type="submit" className="btn" disabled={isSubmitting}>
                         Save
                     </button>
