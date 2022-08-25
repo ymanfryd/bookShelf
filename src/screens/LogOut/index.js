@@ -8,9 +8,10 @@ import request from "../../api/request";
 function signOut(navigate) {
     mainStore.setAuthorized(false)
     mainStore.removeUserData()
-    localStorage.removeItem('userName')
-    localStorage.removeItem('isAdmin')
     request('/api/logout', 'POST', null, true)
+    localStorage.removeItem('userName')
+    localStorage.removeItem('is_admin')
+    localStorage.removeItem('token')
     navigate('/')
 }
 

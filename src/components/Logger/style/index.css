@@ -4,6 +4,10 @@
     padding: 10px;
     background-color: #f1edff;
     z-index: 10;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .loggerWrapper {
@@ -13,7 +17,8 @@
     z-index: 100;
 }
 
-.closeCross {
+.closeCross,
+.nextLog {
     background-color: white;
     border-radius: 20px;
     width: 20px;
@@ -21,6 +26,15 @@
     align-items: baseline;
     justify-content: center;
     height: 20px;
-    margin-bottom: 5px;
+    margin: 0 5px 5px 0;
     border: 1px solid black;
+    cursor: pointer;
+}
+
+.LoggerControlPanel {
+    display: flex;
+}
+
+.nextLog {
+    border-radius: 3px;
 }

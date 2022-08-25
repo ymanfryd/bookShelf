@@ -1,31 +1,45 @@
 import mainStorage from "../store/mainStore";
 
+function createLog(myHeaders, requestOptions, endpoint, res, text, startTime) {
+    const endTime = Date.now()
+    let headersString = "{"
+    myHeaders.forEach((key, value) => {
+        headersString += `${value}: ${key}\n`
+    })
+    const {headers, ...options} = requestOptions
+    const log = `Request:\nEndpoint: ${endpoint}\n` +
+        `Options: ${JSON.stringify(options)}\n` +
+        `Headers: ${headersString.substr(0,headersString.length -1)}}\n\n` +
+        `Response time: ${endTime - startTime} ms\n\n` +
+        `Response:\nStatus: ${res.status}\nText: ${text}`
+    mainStorage.setCurrentLog({log: log, error: res.status >= 300})
+    console.log(log)
+}
+
 export default async function request(endpoint, method, body, authorization) {
     const host = process.env.REACT_APP_HOST
+    const token = localStorage.getItem('token') //TODO
     const myHeaders = new Headers()
     myHeaders.append("Accept", "application/json")
     myHeaders.append("Content-Type", "application/json")
-    // myHeaders.append("Access-Control-Allow-Origin", host)
-    if (authorization)
-        myHeaders.append("Authorization", "Bearer 5|oQckFXk8Iq1H7YlWk7oIbHoWb2NkNd1UujccjSCY");
+    if (authorization && token)
+        myHeaders.append("Authorization", `Bearer ${token}`);
 
     const requestOptions = {
         method: method,
-        headers: myHeaders,
-        redirect: 'follow'
+        headers: myHeaders
     }
     if (body)
         requestOptions.body = JSON.stringify(body)
-    console.log(JSON.stringify(requestOptions))
     try {
+        const startTime = Date.now()
         const res = await fetch(host + endpoint, requestOptions)
         const text = await res.text()
-        mainStorage.setErrorLog(res.status !== 200)
-        mainStorage.setCurrentLog(res)
-        console.log(text)
-        return text
+        createLog(myHeaders, requestOptions, endpoint, res, text, startTime)
+        if (text)
+            return {text: JSON.parse(text), status: res.status}
+        return {status: res.status}
     } catch (e) {
-        mainStorage.setErrorLog(true)
-        mainStorage.setCurrentLog(e.name + ": " + e.message)
+        mainStorage.setCurrentLog({log: e.name + ": " + e.message, error: true})
     }
 }

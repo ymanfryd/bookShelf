@@ -2,20 +2,22 @@ import React from "react";
 import Header from '../../components/Header'
 import {Formik} from 'formik';
 import './style/index.css'
-import {validate} from "../SignUp";
 import {useNavigate} from "react-router-dom";
 import mainStore from "../../store/mainStore";
 import request from "../../api/request";
 
-function submit({values, setSubmitting, navigate}) {
-    mainStore.setCurrentLog(JSON.stringify(values, null, 2))
-    setSubmitting(false)
-    mainStore.setAuthorized(true)
-    request('/api/login', 'POST', values, false)
-    mainStore.setUserData({name: 'name', isAdmin: 'is_admin'}) //TODO replace userData
-    localStorage.setItem('userName', "name")
-    localStorage.setItem('isAdmin', "true")
-    navigate('/')
+async function submit({values, setSubmitting, navigate}) {
+    const res = await request('/api/login', 'POST', values, false)
+    if (res.status < 300) {
+        setSubmitting(false)
+        mainStore.setAuthorized(true)
+        mainStore.setUserData(res.text.data.attributes)
+        localStorage.setItem('userName', res.text.data.attributes.name)
+        localStorage.setItem('is_admin', res.text.data.attributes.is_admin)
+        localStorage.setItem('token', res.text.data.attributes.token) //TODO
+        navigate('/')
+    }
+
 }
 
 export default function SignIn() {
@@ -24,40 +26,31 @@ export default function SignIn() {
         return (
             <Formik
                 initialValues={{email: '', password: ''}}
-                validate={values => validate(values, false)}
                 onSubmit={(values, {setSubmitting}) => submit({values, setSubmitting, navigate})}
             >
                 {({
                       values,
-                      errors,
-                      touched,
                       handleChange,
-                      handleBlur,
                       handleSubmit,
-                      isSubmitting
                   }) => (
                     <form onSubmit={handleSubmit} className='form'>
                         <input
                             className='formInput'
-                            type="email"
+                            type="name"
                             name="email"
                             placeholder='E-mail'
                             onChange={handleChange}
-                            onBlur={handleBlur}
                             value={values.email}
                         />
-                        {errors.email && touched.email && errors.email}
                         <input
                             className='formInput'
                             type="password"
                             name="password"
                             placeholder='password'
                             onChange={handleChange}
-                            onBlur={handleBlur}
                             value={values.password}
                         />
-                        {errors.password && touched.password && errors.password}
-                        <button type="submit" className="btn" disabled={isSubmitting}>
+                        <button type="submit" className="btn">
                             Sign In
                         </button>
                     </form>

@@ -48,7 +48,7 @@
 
 .signUp {
     color: white;
-    background: #1A1A2F;
+    background: linear-gradient(173deg, #646464 0%, #051d39 100%);
     border-radius: 27px;
     padding: 5px 20px;
 }

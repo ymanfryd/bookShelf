@@ -1,10 +1,17 @@
 import React, {useEffect} from "react";
 import Header from "../../components/Header";
-import mainStore from "../../store/mainStore";
 import ListPage from "../../components/ListPage";
-import getAuthors from "../../api/getAuthors";
+import request from "../../api/request";
+import authorsStore from "../../store/authorsStore";
 
 export default function Authors() {
+
+    async function getAuthors() {
+        const res = await request('/api/authors', 'GET', null, true)
+        if (res.status < 300)
+            authorsStore.setAuthors(res.text)
+        return res.text;
+    }
 
     return (
         <div className='pageContainer'>

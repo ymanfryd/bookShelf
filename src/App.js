@@ -13,10 +13,10 @@ import mainStore from "./store/mainStore";
 export default function App() {
     useMemo(() => {
         const name = localStorage.getItem('userName')
-        const isAdmin = localStorage.getItem('isAdmin')
+        const is_admin = localStorage.getItem('is_admin')
         mainStore.setAuthorized(!!name)
         if (name)
-            mainStore.setUserData({name: name, isAdmin: JSON.parse(isAdmin)})
+            mainStore.setUserData({name: name, is_admin: JSON.parse(is_admin)})
     }, [])
 
     return (

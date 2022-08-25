@@ -5,33 +5,22 @@ import mainStore from "../../store/mainStore";
 import {useNavigate} from "react-router-dom";
 import request from "../../api/request";
 
-export function validate(values, isSignUp) {
-    const errors = {}
-    if (!values.email)
-        errors.email = 'Required'
-    else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email))
-        errors.email = 'Invalid email address'
-    if (!values.password)
-        errors.password = 'Required'
-    if (isSignUp) {
-        if (!values.name)
-            errors.name = 'Required'
-        if (values.password !== values.password2)
-            errors.password = 'Passwords do not match'
-    }
-    return errors
-}
-
-function submit({values, setSubmitting, navigate}) {
+async function submit({values, setSubmitting, navigate}) {
     const {password2, ...json} = values;
-    mainStore.setCurrentLog(JSON.stringify(json, null, 2))
     setSubmitting(false)
-    mainStore.setAuthorized(true)
-    mainStore.setUserData({name: values.name, isAdmin: values.is_admin})
-    localStorage.setItem('userName', values.name)
-    localStorage.setItem('isAdmin', values.is_admin)
-    request('/api/register','POST', json, false)
-    navigate('/')
+    const response = await request('/api/register', 'POST', json, false)
+    if (response.status < 300) {
+        const {name, is_admin, ...loginBody} = json
+        const loginResponse = await request('/api/login', 'POST', loginBody, false)
+        if (loginResponse.status < 300) {
+            mainStore.setAuthorized(true)
+            mainStore.setUserData(loginResponse.text.data.attributes)
+            localStorage.setItem('userName', values.name)
+            localStorage.setItem('is_admin', values.is_admin)
+            localStorage.setItem('token', loginResponse.text.data.attributes.token) //TODO
+            navigate('/')
+        }
+    }
 }
 
 export default function SignUp() {
@@ -41,7 +30,6 @@ export default function SignUp() {
         return (
             <Formik
                 initialValues={{name: '', email: '', password: '', password2: '', is_admin: false}}
-                validate={values => validate(values, true)}
                 onSubmit={(values, {setSubmitting}) => submit({values, setSubmitting, navigate})}
             >
                 {({
@@ -63,17 +51,15 @@ export default function SignUp() {
                             onBlur={handleBlur}
                             value={values.name}
                         />
-                        {errors.name && touched.name && errors.name}
                         <input
                             className='formInput'
-                            type="email"
+                            type="name"
                             name="email"
                             placeholder='E-mail'
                             onChange={handleChange}
                             onBlur={handleBlur}
                             value={values.email}
                         />
-                        {errors.email && touched.email && errors.email}
                         <input
                             className='formInput'
                             type="password"
@@ -83,7 +69,6 @@ export default function SignUp() {
                             onBlur={handleBlur}
                             value={values.password}
                         />
-                        {errors.password && touched.password && errors.password}
                         <input
                             className='formInput'
                             type="password"
@@ -93,12 +78,11 @@ export default function SignUp() {
                             onBlur={handleBlur}
                             value={values.password2}
                         />
-                        {errors.password2 && touched.password2 && errors.password2}
                         <label>
                             <Field type="checkbox" name="is_admin"/>
                             Is Admin
                         </label>
-                        <button type="submit" className="btn" disabled={isSubmitting}>
+                        <button type="submit" className="btn">
                             Sign Up
                         </button>
                     </form>
