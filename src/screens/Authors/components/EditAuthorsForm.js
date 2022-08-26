@@ -1,24 +1,21 @@
 import {Formik} from "formik";
 import React from "react";
-import authorsStore from "../../../store/authorsStore";
 import request from "../../../api/request";
 
-export default function EditAuthorsForm({author, setEditElementPressed, setAuthor}) {
-
+export default function EditAuthorsForm({author, setEditElementPressed, refreshCurrentPage}) {
+const isNew = !author.id.length
     return (
         <Formik
             initialValues={{name: author.name, year: author.year}}
-            onSubmit={(values, {setSubmitting}) => {
-                const res = request('/api/admin/authors', 'POST', values, true)
-                if (res.data) {
-                    setAuthor(prev => {
-                        const newAuthors = [values, ...prev]
-                        authorsStore.setAuthors(newAuthors)
-                        return newAuthors
-                    })
+            onSubmit={async (values, {setSubmitting}) => {
+                const res = isNew ?
+                    await request('/api/admin/authors', 'POST', values, true) :
+                    await request(`/api/admin/authors/${author.id}`, 'PUT', values, true)
+                if (res.status < 300) {
                     setEditElementPressed(undefined)
+                    setSubmitting(false)
+                    refreshCurrentPage()
                 }
-                setSubmitting(false)
             }}
         >
             {({

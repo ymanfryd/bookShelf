@@ -1,0 +1,35 @@
+.ListContainer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+}
+
+.CardContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    margin: 20px;
+    width: 240px;
+    height: 160px;
+    background: white;
+    border-radius: 10px;
+    border: 1px double black;
+    border-block-style: revert;
+    box-shadow: -0.357054px 15.996px 18px rgba(220, 220, 220, 0.22), -0.137532px 6.16143px 5.73333px rgba(220, 220, 220, 0.085037), -0.0290933px 1.30338px 1.46667px rgba(220, 220, 220, 0.054963);
+}
+
+.Name {
+    align-self: center;
+    font-size: larger;
+    color: #4F4BFF;
+    margin-bottom: 10px;
+}
+
+.btnContainer > .btn {
+    width: 80px;
+    padding: 10px;
+}

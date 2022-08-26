@@ -1,9 +1,8 @@
 import {Formik} from "formik";
 import React from "react";
-import booksStore from "../../../store/booksStore";
 import request from "../../../api/request";
 
-export default function EditBookForm({book, setEditBookPressed, books}) {
+export default function EditBookForm({book, setEditBookPressed, books, refreshCurrentPage}) {
     const isNew = !book.id.length
 
     async function submit(values, {setSubmitting}) {
@@ -11,10 +10,9 @@ export default function EditBookForm({book, setEditBookPressed, books}) {
                 const res = await request('/api/admin/books', 'POST', values, true)
                 if (res.status < 300) {
                     values.id = res.text.data.id
-                    const newBooks = [...books, values]
-                    booksStore.setBooks(newBooks)
                     setEditBookPressed(undefined)
                     setSubmitting(false)
+                    refreshCurrentPage()
                 }
             } else {
                 const {id, ...body} = values
@@ -22,6 +20,7 @@ export default function EditBookForm({book, setEditBookPressed, books}) {
                 if (res.status < 300) {
                     setEditBookPressed(undefined)
                     setSubmitting(false)
+                    refreshCurrentPage()
                 }
             }
 

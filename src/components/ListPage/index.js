@@ -1,11 +1,13 @@
 import EditBookForm from "../../screens/Books/components/EditBookForm";
-import ReactPaginate from "react-paginate";
 import React, {useEffect, useState} from "react";
 import mainStore from "../../store/mainStore";
-import booksStore from "../../store/booksStore";
-import authorsStore from "../../store/authorsStore";
 import EditAuthorsForm from "../../screens/Authors/components/EditAuthorsForm";
 import request from "../../api/request";
+import Pagination from "../Pagination"
+import "./style/index.css"
+import AuthorBookList from "../../screens/Authors/components/AuthorBookList";
+import Title from "./Title";
+import ItemCard from "./ItemCard";
 
 
 export default function ListPage({
@@ -15,11 +17,17 @@ export default function ListPage({
     const [elements, setElements] = useState([])
     const [currentItems, setCurrentItems] = useState(null)
     const [pageCount, setPageCount] = useState(0)
-    const [offset, setCurrentOffset] = useState(0)
+    const [currentPage, setCurrentPage] = useState(0)
     const [deleteList, setDeleteList] = useState([])
+    const [authorPressed, setAuthorPressed] = useState(undefined)
     const [editElementPressed, setEditElementPressed] = useState(undefined)
     const [deleteManyPressed, setDeleteManyPressed] = useState(false)
-    const itemsPerPage = 12
+    const [nextPageUrl, setNextPageUrl] = useState('')
+    const [prevPageUrl, setPrevPageUrl] = useState('')
+    const [firstPageUrl, setFirstPageUrl] = useState('')
+    const [lastPageUrl, setLastPageUrl] = useState('')
+    const [currentPageUrl, setCurrentPageUrl] = useState('')
+    const [dynamicTitle, setTitle] = useState(title)
     const is_admin = !!mainStore.user.is_admin
     const isBooks = title === 'Books'
 
@@ -27,145 +35,109 @@ export default function ListPage({
         return isBooks ?
             (<EditBookForm setEditBookPressed={setEditElementPressed}
                            book={editElementPressed}
-                           books={elements}/>) :
+                           books={elements}
+                           refreshCurrentPage={refreshCurrentPage}/>) :
             (<EditAuthorsForm author={editElementPressed}
                               setAuthor={setElements}
-                              setEditElementPressed={setEditElementPressed}/>)
+                              setEditElementPressed={setEditElementPressed}
+                              refreshCurrentPage={refreshCurrentPage}/>)
     }
 
     function setItems(res) {
-        if (isBooks) {
-            let books = [];
-            if (res.data)
-                res.data?.map(it => books.push({id: it.id, ...it.attributes}))
-            else
-                books = res
-            setElements(books)
-            booksStore.setBooks(res)
-            setCurrentItems(books.slice(0, itemsPerPage))
-            setPageCount(Math.ceil(books.length / itemsPerPage))
+        const items = []
+        if (res?.data)
+            res.data?.map(it => items.push({id: it.id, ...it.attributes}))
+        if (res?.meta) {
+            setPageCount(parseInt(res.meta.pagination.total_pages))
+            setCurrentItems(items)
+            setCurrentPage(parseInt(res.meta.pagination.current_page))
         }
-        // isBooks ? booksStore.setBooks(res) : authorsStore.setAuthors(res)
-
+        if (res?.links) {
+            setNextPageUrl(res.links.next)
+            setPrevPageUrl(res.links.prev)
+            setFirstPageUrl(res.links.first)
+            setLastPageUrl(res.links.last)
+            setCurrentPageUrl(res.links.self)
+        }
+        setElements(items)
     }
 
     useEffect(() => {
-        const storeElements = isBooks ? booksStore.books : authorsStore.authors
-        // if (!storeElements.length)
         getElements().then(setItems)
-        // else
-        //     setItems(storeElements)
-    }, [editElementPressed])
+    }, [])
 
-    function BookCard({book}) {
-        const isInDeleteList = deleteList.includes(book)
-
-        async function removeBook(book) {
-            if (isBooks) {
-                const res = await request(`/api/admin/books/${book.id}`, 'DELETE', null, true)
-                if (res.status < 300) {
-                    const filtered = elements.filter(item => item !== book)
-                    isBooks ? booksStore.setBooks(filtered) : authorsStore.setAuthors(filtered)
-                    setElements(filtered)
-                    setCurrentItems(filtered.slice(offset, offset + itemsPerPage))
-                    setPageCount(Math.ceil(filtered.length / itemsPerPage))
-                }
-            }
-        }
-
-        function editBook(book) {
-            setEditElementPressed(book)
-            // removeBook(book)
-        }
-
-        function addToDeleteList(book) {
-            if (isInDeleteList)
-                setDeleteList(prev => prev.filter(it => it !== book))
-            else
-                setDeleteList(prev => [book, ...prev])
-        }
-
-        return (
-            <div className='bookCardContainer' style={isInDeleteList ? {backgroundColor: '#ffa9ab'} : {}}>
-                <div className="bookName">{book.name}</div>
-                <div>Year: {book.year}</div>
-                {isBooks ? <div>Author: {book.author_id}</div> : <div>id: {book.id}</div>}
-                {is_admin && !deleteManyPressed && <div className="btnContainer">
-                    <button className='btn' onClick={() => removeBook(book)}>remove</button>
-                    <button className='btn' onClick={() => editBook(book)}>edit</button>
-                </div>}
-                {deleteManyPressed && <div className="btnContainer">
-                    <button className='btn' onClick={() => addToDeleteList(book)}>choose</button>
-                </div>}
-
-            </div>
-        );
+    function refreshCurrentPage() {
+        handlePageClick(currentPageUrl).then(setItems)
     }
 
-    const handlePageClick = (event) => {
-        const newOffset = (event.selected * itemsPerPage) % elements.length;
-        setCurrentOffset(newOffset)
-        setCurrentItems(elements.slice(newOffset, newOffset + itemsPerPage))
+
+    const handlePageClick = async (url) => {
+        const host = process.env.REACT_APP_HOST
+        const endpoint = url.replace(host, '')
+        const res = await request(endpoint, 'GET', null, true)
+        setItems(res.text)
     };
 
     async function deleteMany() {
         if (deleteManyPressed) {
             const ids = []
+            if (!deleteList.length) {
+                setDeleteManyPressed(!deleteManyPressed)
+                return
+            }
             deleteList.map(it => {
                 ids.push(it.id)
             })
             const res = await request('/api/admin/books/delete-many', 'POST', {ids: ids}, true)
             if (res.status < 300) {
-                const newList = []
-                elements?.map(i => {
-                    if (!deleteList.includes(i))
-                        newList.push(i)
-                })
-                setItems(newList)
+                await refreshCurrentPage()
+                setDeleteManyPressed(!deleteManyPressed)
             }
-        }
-        setDeleteManyPressed(!deleteManyPressed)
+        } else
+            setDeleteManyPressed(!deleteManyPressed)
     }
 
     return (
         <>
-            <div className="pageTitle">
-                {is_admin &&
-                <button className='btn'
-                        disabled={deleteManyPressed}
-                        onClick={() =>
-                            setEditElementPressed({name: '', year: '', author_id: '', id: ''})}>
-                    create new
-                </button>}
-                <h2>{title}</h2>
-                {is_admin &&
-                <button className='btn'
-                        disabled={editElementPressed}
-                        onClick={deleteMany}>
-                    delete many
-                </button>}
-
-
-            </div>
+            <Title title={dynamicTitle}
+                   setTitle={setTitle}
+                   isBooks={isBooks}
+                   is_admin={is_admin}
+                   deleteMany={deleteMany}
+                   authorPressed={authorPressed}
+                   setAuthorPressed={setAuthorPressed}
+                   deleteManyPressed={deleteManyPressed}
+                   editElementPressed={editElementPressed}
+                   setEditElementPressed={setEditElementPressed}
+            />
             {editElementPressed ?
                 <EditForm/> :
-                <>
-                    <div className="bookListContainer">
-                        {currentItems?.map((book, index) =>
-                            <BookCard book={book} key={index}/>
-                        )}
-                    </div>
-                    <ReactPaginate
-                        containerClassName='pagination'
-                        breakLabel="..."
-                        nextLabel=">"
-                        onPageChange={handlePageClick}
-                        pageRangeDisplayed={5}
-                        pageCount={pageCount}
-                        previousLabel="<"
-                        renderOnZeroPageCount={null}
-                    />
-                </>
+                (authorPressed ?
+                    <AuthorBookList author={authorPressed} setTitle={setTitle}/> :
+                    <>
+                        <div className="ListContainer">
+                            {currentItems?.map((item, index) =>
+                                <ItemCard item={item}
+                                          key={index}
+                                          isBooks={isBooks}
+                                          is_admin={is_admin}
+                                          deleteList={deleteList}
+                                          setDeleteList={setDeleteList}
+                                          setAuthorPressed={setAuthorPressed}
+                                          deleteManyPressed={deleteManyPressed}
+                                          refreshCurrentPage={refreshCurrentPage}
+                                          setEditElementPressed={setEditElementPressed}
+                                />
+                            )}
+                        </div>
+                        <Pagination currentPage={currentPage}
+                                    nextPageUrl={nextPageUrl}
+                                    prevPageUrl={prevPageUrl}
+                                    lastPageUrl={lastPageUrl}
+                                    firstPageUrl={firstPageUrl}
+                                    pageCount={pageCount}
+                                    handlePageClick={handlePageClick}/>
+                    </>)
             }
         </>
     )

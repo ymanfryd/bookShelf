@@ -17,10 +17,7 @@ export default function Home() {
         <div className='pageContainer'>
             <Header/>
             <h2 className="pageTitle">{title}</h2>
-            {authorized && <p>{`Is admin: ${mainStore.user.is_admin}`}</p>}
-            {/*<div className="homePageContainer">*/}
-
-            {/*</div>*/}
+            {authorized && <p>{`Is admin: ${!!mainStore.user.is_admin}`}</p>}
         </div>
 
     );

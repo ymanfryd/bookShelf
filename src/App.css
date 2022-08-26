@@ -20,17 +20,3 @@
     overflow-x: hidden;
 }
 
-.pagination {
-    display: flex;
-    flex-direction: row;
-    width: 80vw;
-    height: 20px;
-    justify-content: space-around;
-    justify-self: flex-end;
-    margin-top: 50px;
-}
-
-.pagination > li {
-    list-style: none;
-    cursor: pointer;
-}
