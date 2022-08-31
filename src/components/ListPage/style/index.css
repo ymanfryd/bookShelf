@@ -1,3 +1,10 @@
+.listPageContainer {
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+    align-items: flex-start;
+}
+
 .ListContainer {
     display: flex;
     flex-wrap: wrap;

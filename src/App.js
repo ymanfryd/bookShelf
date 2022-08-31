@@ -1,4 +1,4 @@
-import React, {useMemo} from "react";
+import React, {useMemo, useState} from "react";
 import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
 import './App.css'
 import Home from "./screens/Home";
@@ -9,8 +9,12 @@ import Authors from "./screens/Authors"
 import Logger from "./components/Logger";
 import LogOut from "./screens/LogOut";
 import mainStore from "./store/mainStore";
+import EditBookForm from "./screens/Books/components/EditBookForm";
+import EditAuthorsForm from "./screens/Authors/components/EditAuthorsForm";
+import AuthorBookList from "./screens/Authors/components/AuthorBookList";
 
 export default function App() {
+
     useMemo(() => {
         const name = localStorage.getItem('userName')
         const is_admin = localStorage.getItem('is_admin')
@@ -24,11 +28,14 @@ export default function App() {
             <Logger/>
             <Routes>
                 <Route path="/" element={<Home/>}/>
-                <Route path="/sign_in" element={<SignIn/>}/>
-                <Route path="/sign_up" element={<SignUp/>}/>
-                <Route path="/log_out" element={<LogOut/>}/>
+                <Route path="/login" element={<SignIn/>}/>
+                <Route path="/logout" element={<LogOut/>}/>
+                <Route path="/register" element={<SignUp/>}/>
                 <Route path="/books" element={<Books/>}/>
                 <Route path="/authors" element={<Authors/>}/>
+                <Route path="/admin/books" element={<EditBookForm/>}/>
+                <Route path="/admin/authors" element={<EditAuthorsForm/>}/>
+                <Route path="/author" element={<AuthorBookList/>}/>
             </Routes>
         </Router>
     );

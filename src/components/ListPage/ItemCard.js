@@ -1,5 +1,8 @@
 import request from "../../api/request";
 import React from "react";
+import {Link, useNavigate} from "react-router-dom";
+import booksStore from "../../store/booksStore";
+import authorsStore from "../../store/authorsStore";
 
 export default function ItemCard({
                                      item,
@@ -7,34 +10,42 @@ export default function ItemCard({
                                      is_admin,
                                      deleteList,
                                      setDeleteList,
-                                     setAuthorPressed,
                                      deleteManyPressed,
                                      refreshCurrentPage,
-                                     setEditElementPressed,
                                  }) {
-    const isInDeleteList = deleteList.includes(item)
+    const isInDeleteList = deleteList.filter(i => i === item.id).length
+    const navigate = useNavigate()
 
     async function removeElement(el) {
         const res = await request(`/api/admin/${isBooks ? 'books' : 'authors'}/${el.id}`, 'DELETE', null, true)
         if (res.status < 300) {
-            refreshCurrentPage()
+            refreshCurrentPage(true)
         }
     }
 
     function editItem(item) {
-        setEditElementPressed(item)
+        if (isBooks) {
+            booksStore.setBookToEdit(item)
+            navigate('/admin/books')
+        } else {
+            authorsStore.setAuthorToEdit(item)
+            navigate('/admin/authors')
+        }
+
     }
 
     function addToDeleteList(item) {
         if (isInDeleteList)
-            setDeleteList(prev => prev.filter(it => it !== item))
+            setDeleteList(prev => prev.filter(it => it !== item.id))
         else
-            setDeleteList(prev => [item, ...prev])
+            setDeleteList(prev => [item.id, ...prev])
     }
 
     function containerClickHandler(e) {
-        if (!isBooks && e.target.tagName !== "BUTTON")
-            setAuthorPressed(item)
+        if (!isBooks && e.target.tagName !== "BUTTON") {
+            authorsStore.setAuthorPressed(item)
+            navigate('/author')
+        }
     }
 
     return (

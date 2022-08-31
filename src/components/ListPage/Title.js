@@ -1,29 +1,33 @@
 import React from "react";
+import booksStore from "../../store/booksStore";
+import {useNavigate} from "react-router-dom";
+import authorsStore from "../../store/authorsStore";
 
 export default function Title({
                                   title,
                                   isBooks,
-                                  setTitle,
                                   is_admin,
                                   deleteMany,
                                   authorPressed,
-                                  setAuthorPressed,
                                   deleteManyPressed,
-                                  editElementPressed,
-                                  setEditElementPressed
+                                  editElementPressed
                               }) {
+    const navigate = useNavigate()
+
+    function createNew() {
+        if (isBooks) {
+            booksStore.setCreateBookPressed(true)
+            navigate('/admin/books')
+        } else {
+            authorsStore.setCreateAuthorPressed(true)
+            navigate('/admin/authors')
+        }
+    }
+
     return (
         <div className="pageTitle">
-            {is_admin && authorPressed ?
-            <button className='btn'
-                    disabled={deleteManyPressed}
-                    onClick={() =>
-                        setEditElementPressed(authorPressed)}>
-                edit
-            </button> :
-            is_admin && <button className='btn'
-                    onClick={() =>
-                        setEditElementPressed({name: '', year: '', author_id: '', id: ''})}>
+            {is_admin && <button className='btn'
+                                 onClick={createNew}>
                 create new
             </button>}
             <h2>{title}</h2>
@@ -31,17 +35,9 @@ export default function Title({
                 <button className='btn'
                         disabled={editElementPressed}
                         onClick={deleteMany}>
-                    {deleteManyPressed ? 'confirm': 'delete many'}
+                    {deleteManyPressed ? 'confirm' : 'delete many'}
                 </button> : is_admin && !authorPressed && <div style={{width: '180px'}}/>}
-            {authorPressed &&
-            <button className='btn'
-                    onClick={() => {
-                        setAuthorPressed(undefined)
-                        setEditElementPressed(undefined)
-                        setTitle('Authors')
-                    }}>
-                go back
-            </button>}
+
         </div>
     );
 }

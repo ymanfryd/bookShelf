@@ -18,7 +18,7 @@ function createLog(myHeaders, requestOptions, endpoint, res, text, startTime) {
 
 export default async function request(endpoint, method, body, authorization) {
     const host = process.env.REACT_APP_HOST
-    const token = localStorage.getItem('token') //TODO
+    const token = localStorage.getItem('token')
     const myHeaders = new Headers()
     myHeaders.append("Accept", "application/json")
     myHeaders.append("Content-Type", "application/json")
@@ -40,6 +40,6 @@ export default async function request(endpoint, method, body, authorization) {
             return {text: JSON.parse(text), status: res.status}
         return {status: res.status}
     } catch (e) {
-        mainStorage.setCurrentLog({log: e.name + ": " + e.message, error: true})
+        mainStorage.setCurrentLog({log: host + endpoint + "\n" + e.name + ": " + e.message, error: true})
     }
 }

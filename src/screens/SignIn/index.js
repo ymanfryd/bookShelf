@@ -14,7 +14,7 @@ async function submit({values, setSubmitting, navigate}) {
         mainStore.setUserData(res.text.data.attributes)
         localStorage.setItem('userName', res.text.data.attributes.name)
         localStorage.setItem('is_admin', res.text.data.attributes.is_admin)
-        localStorage.setItem('token', res.text.data.attributes.token) //TODO
+        localStorage.setItem('token', res.text.data.attributes.token)
         navigate('/')
     }
 
