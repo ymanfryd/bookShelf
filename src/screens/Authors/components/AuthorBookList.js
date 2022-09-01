@@ -66,12 +66,12 @@ export default function AuthorBookList() {
                         <div>id: {book.id}</div>
                     </div>
                 )}
-                <Pagination setCurrPageUrl={setCurrPageUrl}
-                            reqQuery={reqQuery}
-                            res={reqRes}
-                            currentPage={currentPage}
-                            setCurrentPage={setCurrentPage}
-                            handlePageClick={handlePageClick}/>
+                {!!books.length && <Pagination setCurrPageUrl={setCurrPageUrl}
+                             reqQuery={reqQuery}
+                             res={reqRes}
+                             currentPage={currentPage}
+                             setCurrentPage={setCurrentPage}
+                             handlePageClick={handlePageClick}/>}
             </div>
         </div>
     )
