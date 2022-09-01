@@ -35,8 +35,6 @@ export default function AuthorBookList() {
                     <h2>{author.name}</h2>
                     <button className='btn'
                             onClick={() => {
-                                authorsStore.unsetAuthorToEdit()
-                                authorsStore.unsetAuthorPressed()
                                 navigate('/authors')
                             }}>
                         go back

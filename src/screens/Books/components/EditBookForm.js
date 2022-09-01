@@ -1,5 +1,5 @@
 import {Formik} from "formik";
-import React, {useEffect} from "react";
+import React from "react";
 import request from "../../../api/request";
 import booksStore from "../../../store/booksStore";
 import Header from "../../../components/Header";
@@ -23,7 +23,6 @@ export default function EditBookForm() {
                 const {id, ...body} = values
                 const res = await request(`/api/admin/books/${book.id}`, 'PUT', body, true)
                 if (res.status < 300) {
-                    booksStore.unsetBookToEdit()
                     setSubmitting(false)
                     navigate('/books')
                 }

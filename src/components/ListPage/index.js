@@ -5,36 +5,26 @@ import Pagination from "../Pagination"
 import "./style/index.css"
 import Title from "./Title";
 import ItemCard from "./ItemCard";
-import {useLocation} from "react-router-dom";
+import {useSearchParams} from "react-router-dom";
 import Filters from "../Filters";
 
-export default function ListPage({
-                                     title
-                                 }) {
-    const [queryParams, setQueryParams] = useState('')
+export default function ListPage({title}) {
+    const [searchParams, setSearchParams] = useSearchParams()
     const [reqQuery, setReqQuery] = useState('')
     const [pageCount, setPageCount] = useState(0)
     const [deleteList, setDeleteList] = useState([])
     const [currentPage, setCurrentPage] = useState(1)
-    let [currPageUrl, setCurrPageUrl] = useState('')
     const [prevPageUrl, setPrevPageUrl] = useState('')
     const [nextPageUrl, setNextPageUrl] = useState('')
     const [lastPageUrl, setLastPageUrl] = useState('')
     const [firstPageUrl, setFirstPageUrl] = useState('')
     const [lastEndpoint, setLastEndpoint] = useState('')
     const [currentItems, setCurrentItems] = useState(null)
-    const [authorPressed, setAuthorPressed] = useState(undefined)
     const [deleteManyPressed, setDeleteManyPressed] = useState(false)
     const [editElementPressed, setEditElementPressed] = useState(undefined)
     const is_admin = !!mainStore.user.is_admin
     const isBooks = title === 'Books'
-
-    function useQuery() {
-        const {search} = useLocation();
-        return React.useMemo(() => new URLSearchParams(search), [search]);
-    }
-
-    const query = useQuery()
+    let [currPageUrl, setCurrPageUrl] = useState('')
 
     function setItems(res) {
         const items = []
@@ -44,39 +34,38 @@ export default function ListPage({
             const currPage = parseInt(res.meta.pagination.current_page)
             const totalPages = parseInt(res.meta.pagination.total_pages)
             const perPage = parseInt(res.meta.pagination.per_page)
-            const queryParams = `?page=${currPage}`
             setPageCount(totalPages)
             setCurrentItems(items)
             setCurrentPage(currPage)
-            setQueryParams(queryParams)
         }
         if (res?.links) {
-            setNextPageUrl(res.links.next + reqQuery)
-            setPrevPageUrl(res.links.prev + reqQuery)
-            setFirstPageUrl(res.links.first + reqQuery)
-            setLastPageUrl(res.links.last + reqQuery)
-            setCurrPageUrl(res.links.self + reqQuery)
+            setNextPageUrl(res.links.next ? res.links.next + reqQuery : '')
+            setPrevPageUrl(res.links.prev ? res.links.prev + reqQuery : '')
+            setFirstPageUrl(res.links.first ? res.links.first + reqQuery : '')
+            setLastPageUrl(res.links.last ? res.links.last + reqQuery : '')
+            setCurrPageUrl(res.links.self ? res.links.self + reqQuery : '')
         }
     }
 
-    useEffect(() => {
-        if (isBooks && reqQuery.length)
-            request(`/api/books?page=${currentPage}${reqQuery}`, 'GET', null, true).then(r => setItems(r.text))
-        else if (reqQuery.length)
-            request(`/api/authors?page=${currentPage}${reqQuery}`, 'GET', null, true).then(r => setItems(r.text))
-    }, [reqQuery])
 
     useEffect(() => {
-        const url = window.location.origin + window.location.pathname + queryParams
-        window.history.pushState({path: url}, '', url)
-    }, [queryParams])
+        if (reqQuery.length && currentPage) {
+            const query = `?page=${currentPage}${reqQuery}`
+            const endpoint = isBooks ? '/api/books' : '/api/authors'
+            if (lastEndpoint !== endpoint + query) {
+                setSearchParams(query)
+                setLastEndpoint(endpoint + query)
+                request(endpoint + query, 'GET', null, true).then(r => setItems(r.text))
+            }
+        }
+    }, [reqQuery, currentPage])
 
     window.onpopstate = function () {
-        const page = query.get('page')
+        const page = searchParams.get('page')
         if (page) {
             setDeleteManyPressed(false)
             setEditElementPressed(false)
-            currPageUrl = currPageUrl.slice(0, currPageUrl.indexOf('page=')) + `?page=${page}`
+            currPageUrl = currPageUrl.slice(0, currPageUrl.indexOf('page=')) + `page=${page}${reqQuery}`
             refreshCurrentPage(false)
         }
     }
@@ -90,9 +79,10 @@ export default function ListPage({
         const host = process.env.REACT_APP_HOST
         const endpoint = url.replace(host, '')
         if (refresh || endpoint !== lastEndpoint) {
+            setLastEndpoint(endpoint)
+            setSearchParams(endpoint.substr(endpoint.indexOf('?')))
             const res = await request(endpoint, 'GET', null, true)
             setItems(res?.text)
-            setLastEndpoint(endpoint)
         }
     }
 
@@ -117,7 +107,6 @@ export default function ListPage({
                    isBooks={isBooks}
                    is_admin={is_admin}
                    deleteMany={deleteMany}
-                   authorPressed={authorPressed}
                    deleteManyPressed={deleteManyPressed}
                    editElementPressed={editElementPressed}
             />
@@ -148,8 +137,6 @@ export default function ListPage({
                         firstPageUrl={firstPageUrl}
                         pageCount={pageCount}
                         handlePageClick={handlePageClick}/>
-
-
         </>
     )
 }

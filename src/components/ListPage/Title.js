@@ -36,7 +36,7 @@ export default function Title({
                         disabled={editElementPressed}
                         onClick={deleteMany}>
                     {deleteManyPressed ? 'confirm' : 'delete many'}
-                </button> : is_admin && !authorPressed && <div style={{width: '180px'}}/>}
+                </button> : is_admin &&  <div style={{width: '180px'}}/>}
 
         </div>
     );

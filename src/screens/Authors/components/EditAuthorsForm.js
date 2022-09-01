@@ -20,7 +20,6 @@ export default function EditAuthorsForm() {
                         await request('/api/admin/authors', 'POST', values, true) :
                         await request(`/api/admin/authors/${author.id}`, 'PUT', values, true)
                     if (res.status < 300) {
-                        authorsStore.unsetAuthorToEdit()
                         authorsStore.setCreateAuthorPressed(false)
                         setSubmitting(false)
                         navigate('/authors')
