@@ -7,8 +7,8 @@ import {observer} from "mobx-react-lite";
 const Header = observer(() =>
         <header className={'Header'}>
             <div className="headerGroup rightAlign">
-                <Link to="/books?page=1" className="headerLink">Books</Link>
-                <Link to="/authors?page=1" className="headerLink">Authors</Link>
+                <Link to="/books?page=1&order_by=id&order_direct=asc" className="headerLink">Books</Link>
+                <Link to="/authors?page=1&order_by=id&order_direct=asc" className="headerLink">Authors</Link>
             </div>
             <Link to="/" className="title">BookShelf</Link>
             {mainStore.authorized ?

@@ -11,13 +11,9 @@ import Filters from "../Filters";
 export default function ListPage({title}) {
     const [searchParams, setSearchParams] = useSearchParams()
     const [reqQuery, setReqQuery] = useState('')
-    const [pageCount, setPageCount] = useState(0)
+    const [reqRes, setReqRes] = useState('')
     const [deleteList, setDeleteList] = useState([])
     const [currentPage, setCurrentPage] = useState(1)
-    const [prevPageUrl, setPrevPageUrl] = useState('')
-    const [nextPageUrl, setNextPageUrl] = useState('')
-    const [lastPageUrl, setLastPageUrl] = useState('')
-    const [firstPageUrl, setFirstPageUrl] = useState('')
     const [lastEndpoint, setLastEndpoint] = useState('')
     const [currentItems, setCurrentItems] = useState(null)
     const [deleteManyPressed, setDeleteManyPressed] = useState(false)
@@ -28,23 +24,11 @@ export default function ListPage({title}) {
 
     function setItems(res) {
         const items = []
-        if (res?.data)
+        if (res?.data) {
             res.data?.map(it => items.push({id: it.id, ...it.attributes}))
-        if (res?.meta?.pagination) {
-            const currPage = parseInt(res.meta.pagination.current_page)
-            const totalPages = parseInt(res.meta.pagination.total_pages)
-            const perPage = parseInt(res.meta.pagination.per_page)
-            setPageCount(totalPages)
             setCurrentItems(items)
-            setCurrentPage(currPage)
         }
-        if (res?.links) {
-            setNextPageUrl(res.links.next ? res.links.next + reqQuery : '')
-            setPrevPageUrl(res.links.prev ? res.links.prev + reqQuery : '')
-            setFirstPageUrl(res.links.first ? res.links.first + reqQuery : '')
-            setLastPageUrl(res.links.last ? res.links.last + reqQuery : '')
-            setCurrPageUrl(res.links.self ? res.links.self + reqQuery : '')
-        }
+        setReqRes(res)
     }
 
 
@@ -71,7 +55,7 @@ export default function ListPage({title}) {
     }
 
     function refreshCurrentPage(refresh) {
-        handlePageClick(currPageUrl, refresh).then(setItems)
+        handlePageClick(currPageUrl, refresh)
     }
 
 
@@ -130,12 +114,11 @@ export default function ListPage({title}) {
                 </div>
             </div>
 
-            <Pagination currentPage={currentPage}
-                        nextPageUrl={nextPageUrl}
-                        prevPageUrl={prevPageUrl}
-                        lastPageUrl={lastPageUrl}
-                        firstPageUrl={firstPageUrl}
-                        pageCount={pageCount}
+            <Pagination setCurrPageUrl={setCurrPageUrl}
+                        reqQuery={reqQuery}
+                        res={reqRes}
+                        currentPage={currentPage}
+                        setCurrentPage={setCurrentPage}
                         handlePageClick={handlePageClick}/>
         </>
     )

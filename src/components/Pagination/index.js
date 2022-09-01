@@ -1,15 +1,38 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import "./style/index.css"
 
 export default function Pagination({
                                        handlePageClick,
-                                       firstPageUrl,
-                                       prevPageUrl,
+                                       res,
+                                       reqQuery,
+                                       setCurrPageUrl,
                                        currentPage,
-                                       nextPageUrl,
-                                       lastPageUrl,
-                                       pageCount
+                                       setCurrentPage
                                    }) {
+
+    const [prevPageUrl, setPrevPageUrl] = useState('')
+    const [nextPageUrl, setNextPageUrl] = useState('')
+    const [lastPageUrl, setLastPageUrl] = useState('')
+    const [firstPageUrl, setFirstPageUrl] = useState('')
+    const [pageCount, setPageCount] = useState(0)
+
+    useEffect(() => {
+        if (res?.meta?.pagination) {
+            const currPage = parseInt(res.meta.pagination.current_page)
+            const totalPages = parseInt(res.meta.pagination.total_pages)
+            const perPage = parseInt(res.meta.pagination.per_page)
+            setPageCount(totalPages)
+            setCurrentPage(currPage)
+        }
+        if (res?.links) {
+            setNextPageUrl(res.links.next ? res.links.next + reqQuery : '')
+            setPrevPageUrl(res.links.prev ? res.links.prev + reqQuery : '')
+            setFirstPageUrl(res.links.first ? res.links.first + reqQuery : '')
+            setLastPageUrl(res.links.last ? res.links.last + reqQuery : '')
+            setCurrPageUrl(res.links.self ? res.links.self + reqQuery : '')
+        }
+    }, [res])
+
     return (
 
         <div className='pagination'>

@@ -3,21 +3,37 @@ import request from "../../../api/request";
 import Header from "../../../components/Header";
 import authorsStore from "../../../store/authorsStore";
 import {useNavigate} from "react-router-dom";
+import Pagination from "../../../components/Pagination";
 
 export default function AuthorBookList() {
     const [books, setBooks] = useState([])
     const [authorData, setAuthorData] = useState('')
+    const [reqRes, setReqRes] = useState('')
+    const [currentPage, setCurrentPage] = useState(1)
+    const [reqQuery, setReqQuery] = useState('')
+    const [currPageUrl, setCurrPageUrl] = useState('')
     const author = authorsStore.authorPressed
     const navigate = useNavigate()
 
     useEffect(() => {
         setAuthorData(`Name: ${author.name}, id: ${author.id}, book count: ${author.books_count}, year: ${author.year}`)
-        request(`/api/authors/${author.id}`, 'GET', null, true)
+        request(`/api/books?author_id=${author.id}`, 'GET', null, true)
             .then(res => {
-                setBooks(res.text.included)
+                if (res.status < 300) {
+                    setBooks(res.text.data)
+                    setReqRes(res.text)
+                }
             })
     }, [])
 
+
+    const handlePageClick = async (url) => {
+        const host = process.env.REACT_APP_HOST
+        const endpoint = url.replace(host, '')
+        const res = await request(endpoint, 'GET', null, true)
+        if (res.status < 300)
+            setReqRes(res.text)
+    }
 
     return (
         <div>
@@ -50,6 +66,12 @@ export default function AuthorBookList() {
                         <div>id: {book.id}</div>
                     </div>
                 )}
+                <Pagination setCurrPageUrl={setCurrPageUrl}
+                            reqQuery={reqQuery}
+                            res={reqRes}
+                            currentPage={currentPage}
+                            setCurrentPage={setCurrentPage}
+                            handlePageClick={handlePageClick}/>
             </div>
         </div>
     )
