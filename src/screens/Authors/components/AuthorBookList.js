@@ -5,6 +5,27 @@ import authorsStore from "../../../store/authorsStore";
 import {useNavigate} from "react-router-dom";
 import Pagination from "../../../components/Pagination";
 
+function AuthorTitle({author, navigate}) {
+    return (
+        <div className="pageTitle">
+            <button className='btn'
+                    onClick={() => {
+                        authorsStore.setAuthorToEdit(author)
+                        navigate('/admin/authors')
+                    }}>
+                edit
+            </button>
+            <h2>{author.name}</h2>
+            <button className='btn'
+                    onClick={() => {
+                        navigate('/authors')
+                    }}>
+                go back
+            </button>
+        </div>
+    )
+}
+
 export default function AuthorBookList() {
     const [books, setBooks] = useState([])
     const [authorData, setAuthorData] = useState('')
@@ -31,8 +52,10 @@ export default function AuthorBookList() {
         const host = process.env.REACT_APP_HOST
         const endpoint = url.replace(host, '')
         const res = await request(endpoint, 'GET', null, true)
-        if (res.status < 300)
+        if (res.status < 300) {
             setReqRes(res.text)
+            setBooks(res.text.data)
+        }
     }
 
     return (
@@ -40,38 +63,24 @@ export default function AuthorBookList() {
             <Header/>
 
             <div className='pageContainer'>
-                <div className="pageTitle">
-                    <button className='btn'
-                            onClick={() => {
-                                authorsStore.setAuthorToEdit(author)
-                                navigate('/admin/authors')
-                            }}>
-                        edit
-                    </button>
-                    <h2>{author.name}</h2>
-                    <button className='btn'
-                            onClick={() => {
-                                navigate('/authors')
-                            }}>
-                        go back
-                    </button>
-                </div>
+                <AuthorTitle author={author} navigate={navigate}/>
                 <div>{authorData}</div>
-            </div>
-            <div className='ListContainer'>
-                {books?.map(book =>
-                    <div className='CardContainer' key={book.id}>
-                        <div className="Name">{book.attributes.name}</div>
-                        <div>Year: {book.attributes.year}</div>
-                        <div>id: {book.id}</div>
-                    </div>
-                )}
+
+                <div className='ListContainer'>
+                    {books?.map(book =>
+                        <div className='CardContainer' key={book.id}>
+                            <div className="Name">{book.attributes.name}</div>
+                            <div>Year: {book.attributes.year}</div>
+                            <div>id: {book.id}</div>
+                        </div>
+                    )}
+                </div>
                 {!!books.length && <Pagination setCurrPageUrl={setCurrPageUrl}
-                             reqQuery={reqQuery}
-                             res={reqRes}
-                             currentPage={currentPage}
-                             setCurrentPage={setCurrentPage}
-                             handlePageClick={handlePageClick}/>}
+                                               reqQuery={reqQuery}
+                                               res={reqRes}
+                                               currentPage={currentPage}
+                                               setCurrentPage={setCurrentPage}
+                                               handlePageClick={handlePageClick}/>}
             </div>
         </div>
     )
