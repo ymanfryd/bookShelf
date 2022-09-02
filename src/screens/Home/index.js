@@ -28,7 +28,7 @@ export default function Home() {
                     }
                 })
         }
-    }, [])
+    }, [authorized])
 
     return (
         <div className='pageContainer'>

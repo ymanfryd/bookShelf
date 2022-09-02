@@ -5,7 +5,7 @@ export default function Pagination({
                                        handlePageClick,
                                        res,
                                        reqQuery,
-                                       setCurrPageUrl,
+                                       setCurrPageUrl = () => {},
                                        currentPage,
                                        setCurrentPage
                                    }) {
@@ -20,7 +20,6 @@ export default function Pagination({
         if (res?.meta?.pagination) {
             const currPage = parseInt(res.meta.pagination.current_page)
             const totalPages = parseInt(res.meta.pagination.total_pages)
-            const perPage = parseInt(res.meta.pagination.per_page)
             setPageCount(totalPages)
             setCurrentPage(currPage)
         }

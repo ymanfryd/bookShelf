@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import '../styles/index.css'
-import {Tooltip, XAxis, AreaChart, Area, YAxis, ResponsiveContainer, LabelList} from "recharts";
+import {Tooltip, XAxis, AreaChart, Area, YAxis, ResponsiveContainer} from "recharts";
 
 
 async function getWeather() {
@@ -219,7 +219,7 @@ export default function Weather() {
                         </linearGradient>
                     </defs>
 
-                    <Area type="monotone" dataKey="temperature" stroke="#000" fill="url(#splitColor)"/>
+                    <Area type="monotone" dataKey="temperature" stroke="#000" fill="url(#splitColor)" dot={{ fill: 'black', fillOpacity: 1, r: 2}}/>
                 </AreaChart>
             </ResponsiveContainer>
         </div>

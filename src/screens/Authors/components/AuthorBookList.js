@@ -31,8 +31,6 @@ export default function AuthorBookList() {
     const [authorData, setAuthorData] = useState('')
     const [reqRes, setReqRes] = useState('')
     const [currentPage, setCurrentPage] = useState(1)
-    const [reqQuery, setReqQuery] = useState('')
-    const [currPageUrl, setCurrPageUrl] = useState('')
     const author = authorsStore.authorPressed
     const navigate = useNavigate()
 
@@ -75,9 +73,7 @@ export default function AuthorBookList() {
                         </div>
                     )}
                 </div>
-                {!!books.length && <Pagination setCurrPageUrl={setCurrPageUrl}
-                                               reqQuery={reqQuery}
-                                               res={reqRes}
+                {!!books.length && <Pagination res={reqRes}
                                                currentPage={currentPage}
                                                setCurrentPage={setCurrentPage}
                                                handlePageClick={handlePageClick}/>}
