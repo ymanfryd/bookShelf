@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import Header from "../../components/Header";
 import mainStore from "../../store/mainStore";
 import request from "../../api/request";
-import {logDOM} from "@testing-library/react";
+import Weather from "./components/Weather";
 
 export default function Home() {
     const [userName, setUserName] = useState('')
@@ -17,10 +17,15 @@ export default function Home() {
             request('/api/me', 'GET', null, true)
                 .then(r => {
                     const data = r?.text?.data
-                    setUserName(data.attributes.name)
-                    setUserId(data.id)
-                    setUserEmail(data.attributes.email)
-                    setUserIsAdmin(data.attributes.is_admin)
+                    if (data) {
+                        setUserId(data.id)
+                        const attributes = data.attributes
+                        if (attributes) {
+                            setUserName(attributes.name)
+                            setUserEmail(attributes.email)
+                            setUserIsAdmin(attributes.is_admin)
+                        }
+                    }
                 })
         }
     }, [])
@@ -34,6 +39,7 @@ export default function Home() {
                 <p>{`Is admin: ${!!userIsAdmin}`}</p>
                 <p>{`Email: ${userEmail}`}</p>
             </div>}
+            <Weather/>
         </div>
 
     );

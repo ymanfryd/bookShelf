@@ -51,7 +51,7 @@ export default function AuthorBookList() {
     const handlePageClick = async (url) => {
         const host = process.env.REACT_APP_HOST
         const endpoint = url.replace(host, '')
-        const res = await request(endpoint, 'GET', null, true)
+        const res = await request(endpoint + `&author_id=${author.id}`, 'GET', null, true)
         if (res.status < 300) {
             setReqRes(res.text)
             setBooks(res.text.data)

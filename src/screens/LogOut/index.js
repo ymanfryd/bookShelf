@@ -8,11 +8,13 @@ import request from "../../api/request";
 function signOut(navigate) {
     mainStore.setAuthorized(false)
     mainStore.removeUserData()
-    request('/api/logout', 'POST', null, true)
-    localStorage.removeItem('userName')
-    localStorage.removeItem('is_admin')
-    localStorage.removeItem('token')
-    navigate('/')
+    const res = request('/api/logout', 'POST', null, true)
+    if (res.status < 300) {
+        localStorage.removeItem('userName')
+        localStorage.removeItem('is_admin')
+        localStorage.removeItem('token')
+        navigate('/')
+    }
 }
 
 export default function LogOut () {
